@@ -31,6 +31,7 @@ import org.apache.calcite.util.BuiltInMethod;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * How a row is represented as a Java value.
@@ -172,7 +173,12 @@ public enum JavaRowFormat {
                 BuiltInMethod.LIST_N.method,
                 Expressions.newArrayInit(
                     Comparable.class,
-                    expressions)),
+                    expressions.stream()
+                               .map(e -> e.type instanceof Class
+                                         && Comparable.class.isAssignableFrom((Class<?>) e.type)
+                                         ? e
+                                         : EnumUtils.convert(e, e.type, Comparable.class))
+                               .collect(Collectors.toList()))),
             List.class);
       }
     }
